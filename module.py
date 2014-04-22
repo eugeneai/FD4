@@ -2,6 +2,7 @@
 import numpy
 import math
 from collections import OrderedDict
+import matplotlib.pyplot as plt
 
 label=object()
 
@@ -62,17 +63,20 @@ class DynModel(object):
         A=self.A
         for s in xrange(steps):
             if s % st_steps == 0:
-                self.storage.S.append(self.S)
+                self.storage.S.append(S.copy())
                 self.storage.T.append(t)
             dS=numpy.dot(S, A)
             if dt!=1:
                 dS=dS*dt
 
-            #print dS
+            #print dS, S
             S+=dS
             t+=dt
 
         self.S=S
+        #print self.storage.S
+        self.storage.S=numpy.array(self.storage.S)
+        self.storage.T=numpy.array(self.storage.T)
 
         # Perform simulation
 
@@ -90,7 +94,6 @@ class DynModel(object):
 
     def connect(self, s1, s2, tau):
         """
-
         Arguments:
         - `s1`: A source state
         - `s2`: A destination state
@@ -120,6 +123,35 @@ class DynModel(object):
         self.rv[statename]=len(self.v)
         self.v[statename]=value
 
+    def plot(self):
+        """Plots the result with matplotlib
+        """
+        fig, ax = plt.subplots()
+
+        T=self.storage.T
+        #print self.storage.S
+        #print T
+        for statename in self.v:
+            i=self.rv[statename]
+            s=self.storage.S[:, i]
+            #print s
+            ax.plot(T, s, label=statename)
+
+        legend = ax.legend(loc='upper right', shadow=True)
+
+        frame = legend.get_frame()
+        frame.set_facecolor('0.90')
+
+        # Set the fontsize
+        for label in legend.get_texts():
+            label.set_fontsize('large')
+
+        for label in legend.get_lines():
+            label.set_linewidth(1.5)  # the legend line width
+        plt.show()
+
+
+
 def tes1():
     """Make a simple model test.
     """
@@ -136,8 +168,9 @@ def tes1():
     m.prepare()
     m.simulate()
 
-    print m.storage.S
-    print m.storage.T
+    #print m.storage.S
+    #print m.storage.T
+    m.plot()
 
 
 if __name__=="__main__":
