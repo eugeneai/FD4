@@ -51,6 +51,6 @@ def tes1():
 
 
 
-if __name__=="__main_":
+if __name__=="__main__":
     tes1()
     print "ok"
