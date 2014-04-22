@@ -10,6 +10,8 @@ class DynModel(object):
         """
 
         self.prepared=False
+        self.v=set()
+        self.e={}
 
     def prepare(self):
         """Prepare the model to be simulated
@@ -28,6 +30,17 @@ class DynModel(object):
         - `tau`: A transition intensity
 
         """
+        if not s1 in self.v:
+            raise ValueError, "s1 not a state"
+        if not s2 in self.v:
+            raise ValueError, "s2 not a state"
+
+        obj=(s1,s2)
+
+        if obj in self.v:
+            raise ValueError, "this edge already defined"
+
+        self.e[obj]=tau
 
     def state(self, statename):
         """Declare a state existence.
@@ -35,6 +48,9 @@ class DynModel(object):
         Arguments:
         - `statename`: Name of the state to be declared
         """
+        if statename in self.v:
+            raise ValueError, "state already exists"
+        self.v.add(statename)
 
 def tes1():
     """Make a simple model test.
@@ -45,6 +61,9 @@ def tes1():
     m.state('S3')
     m.connect('S1','S2',0.1)
     m.connect('S2','S3',0.1)
+
+    assert len(m.v)==3
+    assert len(m.e)==2
 
     m.prepare()
     m.simulate()
